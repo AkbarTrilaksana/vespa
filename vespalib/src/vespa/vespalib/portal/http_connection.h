@@ -26,10 +26,12 @@ private:
     SmartBuffer        _output;
     HttpRequest        _request;
     handler_fun_t      _handler;
+    bool               _will_close;
     std::atomic<bool>  _reply_ready;
     Reactor::Token::UP _token;
 
     void set_state(State state, bool read, bool write);
+    bool try_parse_request();
 
     void do_handshake();
     void do_read_request();

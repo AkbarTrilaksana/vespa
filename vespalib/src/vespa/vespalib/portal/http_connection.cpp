@@ -120,6 +120,23 @@ HttpConnection::set_state(State state, bool read, bool write)
     _state = state;
 }
 
+bool
+HttpConnection::try_parse_request()
+{
+    auto data = _input.obtain();
+    auto consumed = _request.handle_data(data.data, data.size);
+    _input.evict(consumed);
+    if (!_request.need_more_data()) {
+        bool client_wants_close = (_request.get_header("connection").find("close") != vespalib::string::npos);
+        bool client_wants_keep_alive = (_request.get_header("connection").find("keep-alive") != vespalib::string::npos);
+        bool client_is_old = (_request.get_version() == "HTTP/1.0");
+        _will_close = client_wants_close || (client_is_old && !client_wants_keep_alive);
+        set_state(State::DISPATCH, false, false);
+        return true;
+    }
+    return false;
+}
+
 void
 HttpConnection::do_handshake()
 {
@@ -140,12 +157,7 @@ HttpConnection::do_read_request()
     if (read(*_socket, _input) != ReadRes::OK) {
         return set_state(State::NOTIFY, false, false);
     }
-    auto data = _input.obtain();
-    auto consumed = _request.handle_data(data.data, data.size);
-    _input.evict(consumed);
-    if (!_request.need_more_data()) {
-        set_state(State::DISPATCH, false, false);
-    }
+    try_parse_request();
 }
 
 void
@@ -170,7 +182,15 @@ HttpConnection::do_write_reply()
         return set_state(State::NOTIFY, false, false);
     }
     if (_output.obtain().size == 0) {
-        set_state(State::CLOSE, false, true);
+        if (_will_close) {
+            set_state(State::CLOSE, false, true);
+        } else {
+            _request = HttpRequest();
+            _reply_ready = false;
+            if (!try_parse_request()) {
+                set_state(State::READ_REQUEST, true, false);
+            }
+        }
     }
 }
 
@@ -197,6 +217,7 @@ HttpConnection::HttpConnection(HandleGuard guard, Reactor &reactor, CryptoSocket
       _output(CHUNK_SIZE * 2),
       _request(),
       _handler(std::move(handler)),
+      _will_close(false),
       _reply_ready(false),
       _token()
 {
@@ -241,7 +262,9 @@ HttpConnection::respond_with_content(const vespalib::string &content_type,
     {
         OutputWriter dst(_output, CHUNK_SIZE);
         dst.printf("HTTP/1.1 200 OK\r\n");
-        dst.printf("Connection: close\r\n");
+        if (_will_close) {
+            dst.printf("Connection: close\r\n");
+        }
         dst.printf("Content-Type: %s\r\n", content_type.c_str());
         dst.printf("Content-Length: %zu\r\n", content.size());
         emit_http_security_headers(dst);
@@ -261,6 +284,7 @@ HttpConnection::respond_with_error(int code, const vespalib::string &msg)
         dst.printf("Connection: close\r\n");
         dst.printf("\r\n");
     }
+    _will_close = true;
     _token->update(false, true);
     _reply_ready.store(true, std::memory_order_release);
 }

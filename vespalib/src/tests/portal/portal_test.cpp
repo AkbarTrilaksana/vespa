@@ -24,6 +24,7 @@ vespalib::string do_http(int port, CryptoEngine::SP crypto, const vespalib::stri
     ASSERT_TRUE(socket.valid());
     auto conn = SyncCryptoSocket::create_client(*crypto, std::move(socket), local_spec);
     vespalib::string http_req = vespalib::make_string("%s %s HTTP/1.1\r\n"
+                                                      "Connection: close\r\n"
                                                       "My-Header: my value\r\n"
                                                       "%s"
                                                       "\r\n", method.c_str(), uri.c_str(), send_host ? "Host: HOST:42\r\n" : "");

@@ -80,7 +80,6 @@ TEST_FF("require that empty known url returns 404 response", DummyHandler(""), H
 TEST_FF("require that non-empty known url returns expected headers", DummyHandler("[123]"), HttpServer(0)) {
     auto token = f2.repo().bind(my_path, f1);
     vespalib::string expect("HTTP/1.1 200 OK\r\n"
-                            "Connection: close\r\n"
                             "Content-Type: application/json\r\n"
                             "Content-Length: 5\r\n"
                             "X-XSS-Protection: 1; mode=block\r\n"

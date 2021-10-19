@@ -117,6 +117,8 @@ vespa_define_module(
     src/tests/portal
     src/tests/portal/handle_manager
     src/tests/portal/http_request
+    src/tests/portal/http_response
+    src/tests/portal/object_tracker
     src/tests/portal/reactor
     src/tests/printable
     src/tests/priority_queue

@@ -21,6 +21,7 @@ vespalib::string fetch(int port, const vespalib::string &path) {
     assert(socket.valid());
     auto conn = vespalib::SyncCryptoSocket::create_client(*crypto, std::move(socket), vespalib::SocketSpec::from_host_port("localhost", port));
     vespalib::string http_req = vespalib::make_string("GET %s HTTP/1.1\r\n"
+                                                      "Connection: close\r\n"
                                                       "Host: localhost:%d\r\n"
                                                       "\r\n", path.c_str(), port);
     assert(conn->write(http_req.data(), http_req.size()) == ssize_t(http_req.size()));
