@@ -5,6 +5,9 @@
 #include <vespa/vespalib/stllike/hash_map.hpp>
 #include <cassert>
 
+#include <vespa/log/log.h>
+LOG_SETUP(".distributor.operation_sequencer");
+
 namespace storage::distributor {
 
 void SequencingHandle::release() {
@@ -33,8 +36,10 @@ SequencingHandle OperationSequencer::try_acquire(document::BucketSpace bucket_sp
     }
     const auto inserted = _active_gids.insert(gid);
     if (inserted.second) {
+        LOG(spam, "Acquired sequencing handle for %s (%s)", id.toString().c_str(), gid.toString().c_str());
         return SequencingHandle(*this, gid);
     } else {
+        LOG(spam, "Could not acquire sequencing handle for %s (%s); blocked", id.toString().c_str(), gid.toString().c_str());
         return SequencingHandle(SequencingHandle::BlockedByPendingOperation());
     }
 }
@@ -56,6 +61,7 @@ bool OperationSequencer::is_blocked(const document::Bucket& bucket) const noexce
 void OperationSequencer::release(const SequencingHandle& handle) {
     assert(handle.valid());
     if (handle.has_gid()) {
+        LOG(spam, "Releasing sequencing handle for %s", handle.gid().toString().c_str());
         _active_gids.erase(handle.gid());
     } else {
         assert(handle.has_bucket());
