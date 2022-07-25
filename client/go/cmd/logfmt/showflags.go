@@ -6,7 +6,6 @@ package logfmt
 
 import (
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -60,11 +59,9 @@ func (v *flagValueForShow) String() string {
 }
 
 func (v *flagValueForShow) Set(val string) error {
-	fmt.Fprintln(os.Stdout, "v set: ", val)
 	minus := strings.HasPrefix(val, "-")
 	plus := strings.HasPrefix(val, "+")
 	if !v.changed {
-		fmt.Println("init v.shown")
 		if minus == false && plus == false {
 			for k, _ := range v.shown {
 				v.shown[k] = false
@@ -72,7 +69,6 @@ func (v *flagValueForShow) Set(val string) error {
 		}
 	}
 	toShow := !minus
-	fmt.Fprintln(os.Stdout, "split", val)
 	for _, k := range strings.Split(val, ",") {
 		if suppress, minus := trimPrefix(k, "-"); minus {
 			k = suppress
@@ -84,13 +80,11 @@ func (v *flagValueForShow) Set(val string) error {
 		}
 		if k == "all" {
 			for k, _ := range v.shown {
-				fmt.Println("v.shown", k, ":=", toShow)
 				v.shown[k] = toShow
 			}
 		} else if _, ok := v.shown[k]; !ok {
 			return fmt.Errorf("not a valid show flag: '%s'", k)
 		} else {
-			fmt.Println("v.shown", k, ":=", toShow)
 			v.shown[k] = toShow
 		}
 	}
