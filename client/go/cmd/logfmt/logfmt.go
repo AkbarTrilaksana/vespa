@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -29,6 +30,8 @@ type myOptions struct {
 	optnldequote bool
 	shortsvc     bool
 	shortcmp     bool
+	compFilter   *regexp.Regexp
+	msgFilter    *regexp.Regexp
 }
 
 func (o *myOptions) showField(field string) bool {
@@ -62,17 +65,17 @@ and converts it to something human-readable`,
 	curOptions.levelFlags.levels = defaultLevelFlags()
 	curOptions.showFlags.shown = defaultShowFlags()
 	cmd.Flags().VarP(&curOptions.levelFlags, "level", "l", "turn levels on/off\n")
-	cmd.Flags().StringVarP(&curOptions.onlysvc, "service", "S", "", "select only one service")
 	cmd.Flags().VarP(&curOptions.showFlags, "show", "s", "turn fields shown on/off\n")
-	cmd.Flags().StringVarP(&curOptions.onlypid, "pid", "p", "", "select only one process ID")
-	cmd.Flags().BoolVarP(&curOptions.onlyint, "internal", "i", false, "select only internal components")
-	cmd.Flags().StringVarP(&curOptions.compore, "component", "c", "", "select components by regexp")
-	cmd.Flags().StringVarP(&curOptions.msgtxre, "message", "m", "", "select messages by regexp")
+	cmd.Flags().BoolVar(&curOptions.onlyint, "internal", false, "select only internal components")
+	cmd.Flags().BoolVar(&curOptions.shortsvc, "truncateservice", false, "truncate service name")
 	cmd.Flags().BoolVarP(&curOptions.optfollow, "follow", "f", false, "follow logfile with tail -f")
 	cmd.Flags().BoolVarP(&curOptions.optnldequote, "nldequote", "N", false, "dequote newlines embedded in message")
+	cmd.Flags().BoolVarP(&curOptions.shortcmp, "truncatecomponent", "X", false, "truncate component name")
+	cmd.Flags().StringVar(&curOptions.compore, "component", "", "select components by regexp")
+	cmd.Flags().StringVar(&curOptions.msgtxre, "message", "", "select messages by regexp")
 	cmd.Flags().StringVarP(&curOptions.onlyhst, "host", "H", "", "select only one host")
-	cmd.Flags().BoolVar(&curOptions.shortsvc, "truncateservice", false, "truncate service name")
-	cmd.Flags().BoolVarP(&curOptions.shortcmp, "truncatecomponent", "t", false, "truncate component name")
+	cmd.Flags().StringVarP(&curOptions.onlypid, "pid", "p", "", "select only one process ID")
+	cmd.Flags().StringVarP(&curOptions.onlysvc, "service", "S", "", "select only one service")
 	return cmd
 }
 
@@ -88,11 +91,27 @@ func vespaHome() string {
 	}
 	return ev
 }
-		
+
 func runLogfmt(opts *myOptions, args []string) {
+	if opts.compore != "" {
+		re, err := regexp.Compile(opts.compore)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "bad component-match regexp '%s': %v", opts.compore, err)
+		} else {
+			opts.compFilter = re
+		}
+	}
+	if opts.msgtxre != "" {
+		re, err := regexp.Compile(opts.msgtxre)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "bad message-match regexp '%s': %v", opts.msgtxre, err)
+		} else {
+			opts.msgFilter = re
+		}
+	}
 	if len(args) == 0 {
 		if inputIsTty() {
-			args = append(args, vespaHome() + "/logs/vespa/vespa.log")
+			args = append(args, vespaHome()+"/logs/vespa/vespa.log")
 		} else {
 			formatFile(opts, os.Stdin)
 		}
@@ -123,95 +142,6 @@ func formatFile(opts *myOptions, arg *os.File) {
 	fmt.Fprintln(os.Stdout, "finished")
 }
 
-var internalComYahooNames = map[string]bool{
-	"application": true,
-	"binaryprefix": true,
-	"clientmetrics ": true,
-	"collections": true,
-	"component": true,
-	"compress ": true,
-	"concurrent": true,
-	"config": true,
-	"configtest ": true,
-	"container": true,
-	"data": true,
-	"docproc": true,
-	"docprocs ": true,
-	"document": true,
-	"documentapi": true,
-	"documentmodel ": true,
-	"dummyreceiver": true,
-	"errorhandling": true,
-	"exception ": true,
-	"feedapi": true,
-	"feedhandler": true,
-	"filedistribution ": true,
-	"fs4": true,
-	"fsa": true,
-	"geo": true,
-	"io": true,
-	"javacc": true,
-	"jdisc ": true,
-	"jrt": true,
-	"lang": true,
-	"language": true,
-	"log": true,
-	"logserver ": true,
-	"messagebus": true,
-	"metrics": true,
-	"net": true,
-	"osgi": true,
-	"path ": true,
-	"plugin": true,
-	"prelude": true,
-	"processing": true,
-	"protect ": true,
-	"reflection": true,
-	"restapi": true,
-	"search ": true,
-	"searchdefinition": true,
-	"searchlib": true,
-	"security ": true,
-	"slime": true,
-	"socket": true,
-	"statistics": true,
-	"stream ": true,
-	"system": true,
-	"tensor": true,
-	"test": true,
-	"text ": true,
-	"time": true,
-	"transaction": true,
-	"vdslib": true,
-	"vespa ": true,
-	"vespaclient": true,
-	"vespafeeder": true,
-	"vespaget ": true,
-	"vespastat": true,
-	"vespasummarybenchmark ": true,
-	"vespavisit": true,
-	"vespaxmlparser": true,
-	"yolean": true,
-}
-
-	
-func isInternal(comp string) bool {
-	cs := strings.Split(comp, ".")
-	if len(cs) == 0 || cs[0] != "Container" {
-		return true
-	}
-	if len(cs) < 3 {
-		return false
-	}
-	if cs[1] == "ai" && cs[2] == "vespa" {
-		return true
-	}
-	if cs[1] == "com" && cs[2] == "yahoo" && len(cs) > 3 {
-		return internalComYahooNames[cs[3]]
-	}
-	return false;
-}
-
 func handle(opts *myOptions, line string) (output string, err error) {
 	fields := strings.Split(line, "\t")
 	if len(fields) > 6 {
@@ -223,7 +153,7 @@ func handle(opts *myOptions, line string) (output string, err error) {
 		levelfield := fields[5]
 		messagefields := fields[6:]
 
-		if ! opts.showLevel(levelfield) {
+		if !opts.showLevel(levelfield) {
 			return "", nil
 		}
 		if opts.onlyhst != "" && opts.onlyhst != hostfield {
@@ -238,11 +168,18 @@ func handle(opts *myOptions, line string) (output string, err error) {
 		if opts.onlyint && !isInternal(componentfield) {
 			return "", nil
 		}
-		// compore
-		// msgtxre
+		if opts.compFilter != nil && opts.compFilter.FindStringIndex(componentfield) == nil {
+			return "", nil
+		}
+		if opts.msgFilter != nil {
+            msgs := strings.Join(messagefields, "\t")
+            if opts.msgFilter.FindStringIndex(msgs) == nil {
+			    return "", nil
+            }
+		}
 
 		var buf strings.Builder
-		
+
 		if opts.showField("fmttime") {
 			secs, err := strconv.ParseFloat(timestampfield, 64)
 			if err != nil {
@@ -255,10 +192,10 @@ func handle(opts *myOptions, line string) (output string, err error) {
 			} else if opts.showField("msecs") {
 				buf.WriteString(timestamp.Format("[2006-01-02 15:04:05.000] "))
 			} else {
-				buf.WriteString(timestamp.Format("[2006-01-02 15:04:05] "))			
+				buf.WriteString(timestamp.Format("[2006-01-02 15:04:05] "))
 			}
 		} else if opts.showField("time") {
-            buf.WriteString(timestampfield)
+			buf.WriteString(timestampfield)
 			buf.WriteString(" ")
 		}
 		if opts.showField("host") {

@@ -11,7 +11,7 @@ import (
 )
 
 type flagValueForShow struct {
-	shown map[string]bool
+	shown   map[string]bool
 	changed bool
 }
 
@@ -27,16 +27,16 @@ func trimPrefix(value, prefix string) (newValue string, hadPrefix bool) {
 
 func defaultShowFlags() map[string]bool {
 	return map[string]bool{
-		"time": true,
-		"fmttime": true,
-		"msecs": true,
-		"usecs": false,
-		"host": false,
-		"level": true,
-		"pid": false,
-		"service": true,
+		"time":      true,
+		"fmttime":   true,
+		"msecs":     true,
+		"usecs":     false,
+		"host":      false,
+		"level":     true,
+		"pid":       false,
+		"service":   true,
 		"component": true,
-		"message": true,
+		"message":   true,
 	}
 }
 
@@ -48,8 +48,8 @@ func (v *flagValueForShow) String() string {
 	mv := v.shown
 	var buf strings.Builder
 	buf.WriteString("show flags:")
-	for flag, active := range(mv) {
-		if (active) {
+	for flag, active := range mv {
+		if active {
 			buf.WriteString(" +")
 		} else {
 			buf.WriteString(" -")
@@ -66,14 +66,14 @@ func (v *flagValueForShow) Set(val string) error {
 	if !v.changed {
 		fmt.Println("init v.shown")
 		if minus == false && plus == false {
-			for k, _ := range(v.shown) {
+			for k, _ := range v.shown {
 				v.shown[k] = false
 			}
 		}
 	}
 	toShow := !minus
 	fmt.Fprintln(os.Stdout, "split", val)
-	for _, k := range(strings.Split(val, ",")) {
+	for _, k := range strings.Split(val, ",") {
 		if suppress, minus := trimPrefix(k, "-"); minus {
 			k = suppress
 			toShow = false
@@ -83,7 +83,7 @@ func (v *flagValueForShow) Set(val string) error {
 			toShow = true
 		}
 		if k == "all" {
-			for k, _ := range(v.shown) {
+			for k, _ := range v.shown {
 				fmt.Println("v.shown", k, ":=", toShow)
 				v.shown[k] = toShow
 			}

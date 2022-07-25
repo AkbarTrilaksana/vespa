@@ -11,20 +11,20 @@ import (
 )
 
 type flagValueForLevel struct {
-	levels map[string]bool
+	levels  map[string]bool
 	changed bool
 }
 
 func defaultLevelFlags() map[string]bool {
 	return map[string]bool{
-		"fatal": true,
-		"error": true,
+		"fatal":   true,
+		"error":   true,
 		"warning": true,
-		"info": true,
-		"config": false,
-		"event": false,
-		"debug": false,
-		"spam": false,
+		"info":    true,
+		"config":  false,
+		"event":   false,
+		"debug":   false,
+		"spam":    false,
 	}
 }
 
@@ -36,8 +36,8 @@ func (v *flagValueForLevel) String() string {
 	mv := v.levels
 	var buf strings.Builder
 	buf.WriteString("level flags:")
-	for flag, active := range(mv) {
-		if (active) {
+	for flag, active := range mv {
+		if active {
 			buf.WriteString(" +")
 		} else {
 			buf.WriteString(" -")
@@ -54,14 +54,14 @@ func (v *flagValueForLevel) Set(val string) error {
 	if !v.changed {
 		fmt.Println("init v.levels")
 		if minus == false && plus == false {
-			for k,_ := range(v.levels) {
+			for k, _ := range v.levels {
 				v.levels[k] = false
 			}
 		}
 	}
 	toShow := !minus
 	fmt.Fprintln(os.Stdout, "split", val)
-	for _, k := range(strings.Split(val, ",")) {
+	for _, k := range strings.Split(val, ",") {
 		if suppress, minus := trimPrefix(k, "-"); minus {
 			k = suppress
 			toShow = false
@@ -71,10 +71,10 @@ func (v *flagValueForLevel) Set(val string) error {
 			toShow = true
 		}
 		if k == "all" {
-			for k,_ := range(v.levels) {
+			for k, _ := range v.levels {
 				fmt.Println("v.levels", k, ":=", toShow)
 				v.levels[k] = toShow
-			}			
+			}
 		} else if _, ok := v.levels[k]; !ok {
 			return fmt.Errorf("not a valid show flag: '%s'", k)
 		} else {
