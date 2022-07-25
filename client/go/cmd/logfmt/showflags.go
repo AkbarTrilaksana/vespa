@@ -61,6 +61,8 @@ func (v *flagValueForShow) String() string {
 func (v *flagValueForShow) Set(val string) error {
 	minus := strings.HasPrefix(val, "-")
 	plus := strings.HasPrefix(val, "+")
+	val = strings.ReplaceAll(val, "-", ",-")
+	val = strings.ReplaceAll(val, "+", ",+")
 	if !v.changed {
 		if minus == false && plus == false {
 			for k, _ := range v.shown {
@@ -77,6 +79,9 @@ func (v *flagValueForShow) Set(val string) error {
 		if surface, plus := trimPrefix(k, "+"); plus {
 			k = surface
 			toShow = true
+		}
+		if k == "" {
+			continue
 		}
 		if k == "all" {
 			for k, _ := range v.shown {
