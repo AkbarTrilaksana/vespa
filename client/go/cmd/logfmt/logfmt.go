@@ -117,7 +117,6 @@ func runLogfmt(opts *myOptions, args []string) {
 		}
 	}
 	for _, arg := range args {
-		fmt.Println("arg:", arg)
 		file, err := os.Open(arg)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Cannot open '%s': %v", err)
@@ -139,7 +138,6 @@ func formatFile(opts *myOptions, arg *os.File) {
 			stdout.WriteString(output)
 		}
 	}
-	fmt.Fprintln(os.Stdout, "finished")
 }
 
 func handle(opts *myOptions, line string) (output string, err error) {
@@ -172,10 +170,10 @@ func handle(opts *myOptions, line string) (output string, err error) {
 			return "", nil
 		}
 		if opts.msgFilter != nil {
-            msgs := strings.Join(messagefields, "\t")
-            if opts.msgFilter.FindStringIndex(msgs) == nil {
-			    return "", nil
-            }
+			msgs := strings.Join(messagefields, "\t")
+			if opts.msgFilter.FindStringIndex(msgs) == nil {
+				return "", nil
+			}
 		}
 
 		var buf strings.Builder
