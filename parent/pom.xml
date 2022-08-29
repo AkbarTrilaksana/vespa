@@ -378,7 +378,7 @@
                             <failOnError>${javadoc.failOnError}</failOnError>
                             <quiet>true</quiet>
                             <show>protected</show>
-                            <header>&lt;a href="https://docs.vespa.ai"&gt;&lt;img src="https://docs.vespa.ai/img/vespa-logo.png" width="100" height="28" style="padding-top:7px"/&gt;&lt;/a&gt;</header>
+                            <header>&lt;a href="https://docs.vespa.ai">&lt;img src="https://docs.vespa.ai/img/vespa-logo.png" width="100" height="28" style="padding-top:7px"/>&lt;/a></header>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -1035,7 +1035,7 @@
         <onnxruntime.version>1.11.0</onnxruntime.version> <!-- WARNING: sync cloud-tenant-base-dependencies-enforcer/pom.xml -->
         <org.lz4.version>1.8.0</org.lz4.version>
         <prometheus.client.version>0.6.0</prometheus.client.version>
-        <protobuf.version>3.19.2</protobuf.version>
+        <protobuf.version>3.21.4</protobuf.version>
         <spifly.version>1.3.5</spifly.version>
         <surefire.version>2.22.2</surefire.version>
         <zookeeper.client.version>3.7.1</zookeeper.client.version>
