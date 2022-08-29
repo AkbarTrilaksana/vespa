@@ -378,7 +378,7 @@
                             <failOnError>${javadoc.failOnError}</failOnError>
                             <quiet>true</quiet>
                             <show>protected</show>
-                            <header>&lt;a href="https://docs.vespa.ai"&gt;&lt;img src="https://docs.vespa.ai/img/vespa-logo.png" width="100" height="28" style="padding-top:7px"/&gt;&lt;/a&gt;</header>
+                            <header>&lt;a href="https://docs.vespa.ai">&lt;img src="https://docs.vespa.ai/img/vespa-logo.png" width="100" height="28" style="padding-top:7px"/>&lt;/a></header>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -574,7 +574,7 @@
             <dependency>
                 <groupId>commons-cli</groupId>
                 <artifactId>commons-cli</artifactId>
-                <version>1.4</version>
+                <version>1.5.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-net</groupId>
