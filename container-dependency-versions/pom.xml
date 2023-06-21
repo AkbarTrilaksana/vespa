@@ -234,7 +234,7 @@
 
     <properties>
         <aopalliance.version>1.0</aopalliance.version>
-        <guava.version>27.1-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
         <guice.version>4.2.3</guice.version>
         <jackson2.version>2.13.3</jackson2.version>
         <jackson-databind.version>${jackson2.version}</jackson-databind.version>
