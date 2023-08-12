@@ -32,7 +32,7 @@
     </scm>
 
     <properties>
-        <vespaversion>${project.version}</vespaversion>
+        <vespaversion>8.209.11</vespaversion>
         <!-- when <test-framework.version> is "${project.version}", it is decoupled from the
              compile version set with "-D vespaversion=...", and is instead the newest version.
              When it is "${vespaversion}", it is coupled, which should be the default. -->
@@ -252,16 +252,13 @@
                                 <configuration>
                                     <tasks>
                                         <!-- copy fat test-jar to application-test artifacts directory, see 4. above -->
-                                        <copy file="target/${project.artifactId}-fat-test.jar"
-                                              todir="target/application-test/artifacts/" />
+                                        <copy file="target/${project.artifactId}-fat-test.jar" todir="target/application-test/artifacts/"/>
 
                                         <!-- copy slim test-jar to application-test artifacts directory, see 4. above -->
-                                        <copy file="target/${project.artifactId}-tests.jar"
-                                              todir="target/application-test/artifacts/" />
+                                        <copy file="target/${project.artifactId}-tests.jar" todir="target/application-test/artifacts/"/>
 
                                         <!-- zip application-test, see 5. above -->
-                                        <zip destfile="target/application-test.zip"
-                                             basedir="target/application-test/" />
+                                        <zip destfile="target/application-test.zip" basedir="target/application-test/"/>
                                     </tasks>
                                 </configuration>
                             </execution>
@@ -279,7 +276,7 @@
                 </property>
             </activation>
             <properties>
-                <vespaversion>${vespa.compile.version}</vespaversion>
+                <vespaversion>8.209.11</vespaversion>
             </properties>
         </profile>
 
@@ -291,7 +288,7 @@
                 </property>
             </activation>
             <properties>
-                <vespaVersion>${vespa.runtime.version}</vespaVersion>
+                <vespaVersion>8.209.11</vespaVersion>
             </properties>
         </profile>
         <profile>
