@@ -32,7 +32,7 @@
     </scm>
 
     <properties>
-        <vespaversion>${project.version}</vespaversion>
+        <vespaversion>8.255.38</vespaversion>
         <target_jdk_version>17</target_jdk_version>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
@@ -329,18 +329,18 @@
                                         <!-- Workaround to copy src/test/application/tests only when its parents exists:
                                              Copy in two steps, eliminating the parents in the helper step-->
 
-                                        <mkdir dir="target/application-test/src/test/application" />
+                                        <mkdir dir="target/application-test/src/test/application"/>
                                         <copy todir="target/application-test/">
-                                            <fileset dir="." includes="src/test/application/tests/**" />
+                                            <fileset dir="." includes="src/test/application/tests/**"/>
                                         </copy>
 
                                         <copy todir="target/application-test/">
-                                            <fileset dir="target/application-test/src/test/application" includes="tests/**" />
+                                            <fileset dir="target/application-test/src/test/application" includes="tests/**"/>
                                         </copy>
-                                        <delete dir="target/application-test/src" />
+                                        <delete dir="target/application-test/src"/>
 
-                                        <copy file="target/${project.artifactId}-tests.jar" todir="target/application-test/components/" />
-                                        <zip destfile="target/application-test.zip" basedir="target/application-test/" />
+                                        <copy file="target/${project.artifactId}-tests.jar" todir="target/application-test/components/"/>
+                                        <zip destfile="target/application-test.zip" basedir="target/application-test/"/>
                                     </tasks>
                                 </configuration>
                             </execution>
@@ -358,7 +358,7 @@
                 </property>
             </activation>
             <properties>
-                <vespaversion>${vespa.compile.version}</vespaversion>
+                <vespaversion>8.255.38</vespaversion>
             </properties>
         </profile>
 
@@ -370,7 +370,7 @@
                 </property>
             </activation>
             <properties>
-                <vespaVersion>${vespa.runtime.version}</vespaVersion>
+                <vespaVersion>8.255.38</vespaVersion>
             </properties>
         </profile>
         <profile>
