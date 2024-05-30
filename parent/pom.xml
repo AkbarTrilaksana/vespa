@@ -978,7 +978,7 @@
     </dependencyManagement>
 
     <properties>
-        <aircompressor.version>0.21</aircompressor.version>
+        <aircompressor.version>0.27</aircompressor.version>
         <airline.version>0.7</airline.version>
         <antlr.version>3.5.2</antlr.version>
         <antlr4.version>4.9.3</antlr4.version>
